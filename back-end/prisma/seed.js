@@ -29,18 +29,21 @@ async function main() {
   const users = [];
   const numberOfUsers = 4;
 
-  // Criação do usuário admin
-  const user = await prisma.user.create({
-    data: {
+ // Cria o administrador somente se o e-mail ainda não existir
+  const user = await prisma.user.upsert({
+    where: {
+      email: 'admin@vulcom.com.br'
+    },
+    update: {},
+    create: {
       fullname: 'Administrador do Sistema',
       username: 'admin',
       email: 'admin@vulcom.com.br',
-      // OWASP Top 10:2025 A07 - Falhas de Autenticação: credencial inicial fixa e conhecida.
-      // OWASP Top 10:2025 A04 - Falhas de Criptografia: senha persistida em texto puro.
       password: 'Vulcom@DSM',
       is_admin: true
     }
   })
+
   users.push(user)
   
   for (let i = 0; i < numberOfUsers; i++) {

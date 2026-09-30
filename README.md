@@ -1,24 +1,26 @@
-# Forkando e criando um _codespace_ para este repositório
+# Vulcom — configuração em GitHub Codespaces
 
-1. Faça _login_ no [GitHub](https://github.com).
-2. Acesse [https://github.com/faustocintra/vulcom-main-YYYY-S](https://github.com/faustocintra/vulcom-main-YYYY-S).
-3. Clique sobre o botão `[Fork]` no canto superior direito.
-4. Na página seguinte ("Create new fork"), não altere nada, simplesmente clique sobre o botão `[Create fork]`. Aguarde.
-5. Confira se a URL mostrada no navegador corresponde a "https://github.com/**<SEU USUÁRIO>**/vulcom-main-YYYY-S".
-6. Clique sobre o botão verde `[Code]` e, em seguida:
-  - No _popup_, clique sobre a aba `Codespaces`.
-  - Clique sobre o botão `+` para criar um _codespace_ para o repositório.
-  - Será aberta, no próprio navegador, uma aba do Visual Studio Code _online_ enquanto o _codespace_ é criado. Aguarde o término da criação.
-  
-> Um _codespace_ do GitHub é um ambiente de desenvolvimento hospedado na nuvem que pode trazer editor, linguagens, ferramentas e dependências totalmente configurados para um projeto, dispensando sua instalação no computador do usuário. Acessível pelo navegador de qualquer computador conectado à Internet, ele facilita o início das atividades, padroniza o ambiente entre os participantes e permite continuar o trabalho em diferentes máquinas, preservando arquivos e configurações. 
+## 1) Fazendo fork e abrindo o codespace
 
-----
+1. Faça login no [GitHub](https://github.com).
+2. Acesse o repositório do professor: `https://github.com/fcintra5/vulcom-main-YYYY-S`.
+3. Clique em `Fork` no canto superior direito.
+4. Na página de criação do fork, mantenha os valores padrão e clique em `Create fork`.
+5. Confirme que a URL do seu fork ficou no formato `https://github.com/<SEU_USUARIO>/vulcom-main-YYYY-S`.
+6. Clique em `Code` e, em seguida, na aba `Codespaces`.
+7. Clique em `Create codespace on main` para abrir o ambiente.
+8. Aguarde o ambiente ser provisionado. Na primeira vez, o VS Code _online_ será aberto no navegador.
 
-# Configurando o _back-end_
+> Um GitHub Codespace é um ambiente de desenvolvimento na nuvem. Ele já traz editor, ferramentas e dependências do projeto, reduzindo a instalação local.
 
-### Configuração das variáveis de ambiente
+## 2) Configurando o back-end
 
-Renomeie o arquivo `.env.example` para `.env`. Ajuste o conteúdo do arquivo para o seguinte:
+### 2.1 Arquivo de ambiente
+
+No repositório, copie o arquivo `back-end/.env.example` para `back-end/.env`.
+
+Conteúdo sugerido:
+
 ```ini
 # Renomeie este arquivo para .env e preencha os valores abaixo
 
@@ -26,84 +28,120 @@ Renomeie o arquivo `.env.example` para `.env`. Ajuste o conteúdo do arquivo par
 # (O token secret é simplesmente uma string aleatória)
 TOKEN_SECRET=""
 
-# Nome do cookie de autenticação, p. ex. _auth
-# # (mesmo valor de VITE_AUTH_COOKIE_NAME no .env.local do front-end)
+# Nome do cookie de autenticação
 AUTH_COOKIE_NAME="_auth"
 
-# URLs do front-end a partir do qual serão aceitas requisições
-ALLOWED_ORIGINS="http://localhost:5173,http://127.0.0.1:5173"
+# URLs do front-end autorizadas a consumir a API, separadas por vírgulas
+# Em um codespace, use o endereço HTTPS da porta 5173 do front-end.
+ALLOWED_ORIGINS=""
 ```
 
-> **IMPORTANTE**: gere o _token secret_ conforme indicado no comentário do arquivo e preencha o valor da variável `TOKEN_SECRET`.
+> Importante: gere um valor seguro para `TOKEN_SECRET` antes de iniciar a aplicação.
 
-## Instalação das dependências
+### 2.2 Instalação das dependências
 
-Abra um terminal no VS Code. Nele, execute os comandos:
-```
+No terminal do VS Code, execute:
+
+```bash
 cd back-end
 npm install
 ```
 
-Caso apareça uma mensagem alertando sobre vulnerabilidades detectadas, execute:
-```
-npm audit fix
-```
+### 2.3 Banco de dados e registros iniciais
 
-## Criação do banco de dados e dos registros iniciais
+Ainda dentro da pasta `back-end`, execute estas etapas na primeira configuração:
 
-Ainda no terminal, na pasta `back-end`, execute:
-```
+```bash
 npx prisma generate
 npx prisma migrate dev --name create-tables
-npx prisma db seed
 ```
 
-## Executando o projeto
+### 2.4 Executando o back-end
 
-Estando dentro da pasta `back-end`, execute:
-```
+```bash
+cd back-end
 npm run dev
 ```
 
-----
+A API ficará disponível na porta `8888` no Codespace.
 
-# Configurando o _front-end_
+## 3) Configurando o front-end
 
-### Configuração das variáveis de ambiente
+### 3.1 Arquivo de ambiente
 
-Renomeie o arquivo `.env.local.example` para `.env.local`. Ajuste o conteúdo do arquivo para o seguinte:
+Copie o arquivo `front-end/.env.local.example` para `front-end/.env.local`.
+
+Para preencher corretamente a chave `VITE_API_BASE`, siga estes passos:
+
+1. No VS Code, abra a aba `PORTS` (ou `PORTAS`) na parte inferior do editor.
+2. Verifique se a porta `8888` do back-end já está listada como pública/forwarded.
+3. Clique no ícone de `Open in Browser` ou copie a URL pública que aparece para a porta `8888`.
+4. O endereço normalmente terá formato parecido com:
+
+```text
+https://<NOME-DO-CODESPACE>-8888.app.github.dev
+```
+
+5. Cole esse valor na variável `VITE_API_BASE`, ficando assim:
+
 ```ini
 # Renomeie este arquivo para .env.local e preencha os valores abaixo
 
-# Preencha com a URL do back-end
-VITE_API_BASE="http://localhost:8888"
+# URL pública do back-end no codespace
+VITE_API_BASE="https://<NOME-DO-CODESPACE>-8888.app.github.dev"
 
-# Preencha com o nome do cookie de autenticação
-# (mesmo valor de AUTH_COOKIE_NAME no .env do back-end)
+# Nome da chave usada para armazenar o token no localStorage
 VITE_AUTH_TOKEN_NAME="_auth"
 ```
 
-## Instalação das dependências
+> Em alguns casos, a URL pública só aparece depois que o back-end já foi iniciado uma vez na porta 8888. Se a aba `PORTS` ainda não mostrar uma URL pública, execute primeiro o servidor do back-end e, em seguida, volte para a aba `PORTS` para copiar o endereço gerado.
 
-Abra um segundo terminal no VS Code. Nele, execute os comandos:
-```
+> Se a porta aparecer como privada ou como `http://localhost:8888`, use a opção de visualização/forwarding do GitHub Codespaces para expor a porta e obter a URL pública correta.
+
+### 3.2 Instalação das dependências
+
+Abra um segundo terminal no VS Code e execute:
+
+```bash
 cd front-end
 npm install
 ```
 
-Caso apareça uma mensagem alertando sobre vulnerabilidades detectadas, execute, dentro da pasta `front-end`:
-```
-npm audit fix
+Se o npm exigir aprovação de scripts, verifique primeiro com:
+
+```bash
+node --version
+npm --version
+npm install-scripts ls
 ```
 
-Autorize a execução dos _scripts_ pós-instalação, executando, dentro da pasta `front-end`:
-```
-npm install-scripts approve --all
-```
+Somente aprove os scripts pendentes se a sua versão do npm oferecer esse suporte e houver necessidade real.
 
-## Executando o projeto
+### 3.3 Executando o front-end
 
-Estando dentro da pasta `front-end`, execute:
-```
+```bash
+cd front-end
 npm run dev
 ```
+
+O front-end normalmente fica acessível na porta `5173` do codespace.
+
+## 4) Acesso ao projeto no navegador
+
+Para usar a aplicação pelo navegador do Codespace:
+
+1. Abra a aba `PORTS`/`PORTAS` no VS Code.
+2. Verifique as portas `5173` (front-end) e `8888` (back-end).
+3. Use a URL pública do front-end, normalmente no formato `https://<NOME-DO-CODESPACE>-5173.app.github.dev`.
+4. Se o navegador indicar algum problema de CORS, ajuste `ALLOWED_ORIGINS` para refletir a origem correta da porta 5173.
+5. Reinicie os servidores após alterar qualquer arquivo `.env`.
+
+## 5) Primeiro login
+
+O seed inicial cria o usuário administrador com:
+
+- Usuário: `admin`
+- Senha: `Vulcom@DSM`
+
+Use essas credenciais na primeira autenticação da aplicação.
+
